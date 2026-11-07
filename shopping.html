@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <title>payment method</title>
+</head>
+<body>
+    <header>
+        <div class="head">
+            <div class="logo">LOGO</div>
+            <div class="minhead">
+                <input type="search" id="search" placeholder="Search for products,brands...">
+                <label for="search"></label>
+                <button>Search</button>
+           </div>
+        </div>
+        <div class="hee">
+            <a href="./wishlist.html">
+                <li class="wishlist">
+                    <i class="fa fa-heart" aria-hidden="true"></i>
+                    <span>Wishlist</span>
+                    <span class="wishcount">0</span>
+                </li>
+            </a>
+            <a href="./cart.html">
+                <li class="cart">
+                   <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                   <span>Cart</span>
+                  <span class="counter">0</span>
+              </li>
+
+            </a>
+        </div>
+    </header> 
+    <nav>
+        <ul>
+           <li> <a href="./index.html">Home</a></li>  
+          <li> <a href="./laptop.html">Laptops</a></li>
+          <li> <a href="./tablets.html">Tablets</a></li>
+          <li> <a href="">Monitors</a></li>
+          <li> <a href="./phone.html">Phones</a></li>
+          <li> <a href="./accessories.html">Accessories</a></li>
+        </ul>
+    </nav> 
+    <main id="main">
+        <div class="payment">
+            <div class="flex">
+                <div class="ii">
+                    <i class="fa-notdog fa-solid fa-house"></i>
+                </div>
+               <h2>Shipping</h2>
+            </div>
+            <div class="line"></div>
+            <div class="flex">
+                <div class="li">
+                   <i class="fa-sharp fa-solid fa-credit-card"></i>
+                </div>
+                <h2>payment</h2>
+            </div>
+            <div class="line"></div>
+            <div class="flex">
+                <div class="li">
+                   <i class="fa-sharp fa-solid fa-square-check"></i>
+                </div>
+               <h2>Review</h2>
+            </div>
+        </div>
+
+
+        <div class="main-griddd"> 
+            <div class="form">
+                <h2>Shipping information</h2>
+            <form action="./payment.html" id="shippingForm">
+                      <div class="pad">
+                     
+                <div class="forms">
+                    <div>
+                        <label for="first-name">First Name</label> <br>
+                       <input type="text" id="first-name" placeholder="Enter your name" required name="first-name">
+                    </div>
+                    <div>
+                       <label for="last-name">Last Name</label> <br>
+                       <input type="text" id="last-name" placeholder="Enter your name" required name="last-name">
+                    </div>
+                </div>
+                <div class="forms">
+                    <div>
+                        <label for="email-address">Email Address</label> <br>
+                       <input type="email" id="email-address" placeholder="Enter your name" required name="email">
+                    </div>
+                    <div>
+                       <label for="tel">Phone Number</label> <br>
+                       <input type="tel" id="tel" placeholder="Enter your phone number" required name="tel">
+                    </div>
+                </div>
+                <div class="forms">
+                    <div>
+                       <label for="text">Address</label> <br>
+                       <input type="text" id="text" placeholder="Enter your address" required name="address">
+                    </div>
+                    <div>
+                      <label for="city">City</label> 
+                      <select name="city" id="city">
+                          <option value="">Select your city</option>
+                          <option value=""></option>
+                          <option value=""></option>
+                          <option value=""></option>
+                      </select>
+                    </div>
+                </div>
+                <div class="forms">
+                    <div>
+                        <label for="state">State/Province</label>
+                        <select name="state" id="state">
+                          <option value="">Select your city/province</option>
+                          <option value=""></option>
+                          <option value=""></option>
+                          <option value=""></option>
+                        </select>
+                  </div>
+                  <div>
+                      <label for="postal-code">ZIP/Postal Code</label> <br>
+                       <input type="text" id="postal-code" name="postal-code" placeholder="Enter your ZIP code" required name="postal-code">
+                  </div>
+                </div>
+                </div>
+                <div class="a">
+                    <button type="submit">Continue to payment</button>
+                </div>
+               </div>
+
+            </form>
+                
+            <aside class="shipping">
+                <h2 id="summm">Order summary</h2>
+                <div class="sumarry">
+                    <div class="shipping-item"></div>
+                    <div class="totall">
+                        <div class="classs">
+                            <p>Subtotal</p><span id="sub">#</span>
+                        </div>
+                        <div>
+                            <p id="totuu">Total</p><span id="totall">#</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    </main>
+    <footer>
+        <div class="section4"> 
+            <h3>LOGO</h3>
+            <div class="foot">
+              <div class="flex1">
+                 <p>Premium tech products with flexible payment options and <br>
+                  exceptional service.</p>
+                   <div class="iconic">
+                      <img src="./instagram.png" alt="">
+                      <img src="./Titok.png" alt="">
+                   </div>
+              </div>
+             <div class="flex2">
+                 <ul id="ul">
+                    <li>Laptops</li>
+                    <li>Phones</li>
+                    <li>Tablets</li>
+                    <li>Accessories</li>
+                 </ul>
+              </div>
+          </div>
+        </div>
+        <div class="end">
+            <p>&copy;2026 All rights reserved</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./script.js"></script>
+</body>    

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in or create an account</title>
+</head>
+<body class="gen-login">
+    <main class="auth-layout">
+        <section class="auth-card" aria-labelledby="auth-title">
+            <a class="auth-brand" href="./index.html" aria-label="Store home">GADGET<span>HUB</span></a>
+            <div class="auth-heading">
+                <p class="auth-eyebrow">YOUR ACCOUNT</p>
+                <h1 id="auth-title">Welcome back</h1>
+                <p id="auth-description">Sign in to continue to checkout. You can shop without an account.</p>
+            </div>
+            <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Account action">
+                <button class="auth-tab is-active" type="button" role="tab" aria-selected="true" data-auth-mode="signin">Sign in</button>
+                <button class="auth-tab" type="button" role="tab" aria-selected="false" data-auth-mode="signup">Create account</button>
+            </div>
+            <form id="authForm" class="auth-form" novalidate>
+                <div class="auth-field" id="fullNameField" hidden>
+                    <label for="full-name">Your name</label>
+                    <input type="text" id="full-name" name="full-name" autocomplete="name" placeholder="e.g. Alex Morgan">
+                </div>
+                <div class="auth-field">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+                </div>
+                <div class="auth-field">
+                    <label for="password">Password</label>
+                    <div class="auth-password">
+                        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Enter your password" required>
+                        <button class="password-toggle" id="togglePassword" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                    </div>
+                    <small id="passwordHint" hidden>Use at least 6 characters.</small>
+                </div>
+                <div class="auth-field" id="confirmPasswordField" hidden>
+                    <label for="confirm-password">Confirm new password</label>
+                    <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Enter your new password again">
+                </div>
+                <button class="auth-forgot" id="forgotPassword" type="button">Forgot password?</button>
+                <button class="auth-submit" id="authSubmit" type="submit">Sign in</button>
+                <p class="auth-message" id="message" role="status" aria-live="polite"></p>
+                <button class="auth-resend" id="resendConfirmation" type="button" hidden>Resend confirmation email</button>
+            </form>
+            <div class="auth-footer">
+                <a href="./index.html">← Continue shopping</a>
+                <span>Secure sign-in powered by Supabase</span>
+            </div>
+        </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./script.js"></script>
+</body>
+</html>

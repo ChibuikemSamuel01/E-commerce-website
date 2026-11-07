@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg==" crossorigin="anonymous" referrerpolicy="no-referrer"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet"> 
+    <title>Review page</title>
+</head>
+<body>
+    <header>
+        <div class="head">
+            <div class="logo">LOGO</div>
+            <div class="minhead">
+                <input type="search" id="search" placeholder="Search for products,brands...">
+                <label for="search"></label>
+                <button>Search</button>
+           </div>
+        </div>
+        <div class="hee">
+            <a href="./wishlist.html">
+                <li class="wishlist">
+                    <i class="fa fa-heart" aria-hidden="true"></i>
+                    <span>Wishlist</span>
+                    <span class="wishcount">0</span>
+                </li>
+            </a>
+            <a href="./cart.html">
+                <li class="cart">
+                   <i class="fa fa-cart-plus" aria-hidden="true"></i>
+                   <span>Cart</span>
+                  <span class="counter">0</span>
+              </li>
+
+            </a>
+        </div>
+    </header> 
+    <nav>
+        <ul>
+           <li> <a href="./index.html">Home</a></li>  
+          <li> <a href="./laptop.html">Laptops</a></li>
+          <li> <a href="./tablets.html">Tablets</a></li>
+          <li> <a href="">Monitors</a></li>
+          <li> <a href="./phone.html">Phones</a></li>
+          <li> <a href="./accessories.html">Accessories</a></li>
+        </ul>
+    </nav> 
+    <main id="main">
+        <div class="payment">
+            <div class="flex">
+                <div class="ii">
+                    <i class="fa-notdog fa-solid fa-house"></i>
+                </div>
+               <h2>Shipping</h2>
+            </div>
+            <div class="lines"></div>
+            <div class="flex">
+                <div class="linrs">
+                   <i class="fa-sharp fa-solid fa-credit-card"></i>
+                </div>
+                <h2>payment</h2>
+            </div>
+            <div class="lines"></div>
+            <div class="flex">
+                <div class="linrs">
+                   <i class="fa-sharp fa-solid fa-square-check"></i>
+                </div>
+               <h2>Review</h2>
+            </div>
+        </div>
+        <div class="paddings">
+            <h1>Review Your Order</h1>
+            <div class="bigi">
+            <div class="biiii">
+                <div class="smallie">
+                   <div class="nowhappening"> 
+                    <div class="inforationist">
+                        <h3>Shipping Information</h3>
+                    </div>
+                    <div class="userfirstname">
+                        <p id="userFirstName"></p>
+                        <p id="userSecondName"></p>
+                        <p id="userPhoneNumber"></p>
+                        <p id="userPostalCode"></p>
+                        <p id="email"></p>
+                        <p id="emailAddress"></p>
+                    </div>
+                 </div>
+
+                    <div class="inforationist">
+                        <h3>Payment Method</h3>
+                       <div class="dives">
+                          <div class="nana">
+                          <h4>Cash on delivery</h4>
+                          </div>
+                       </div>
+                    </div>
+
+                </div>
+                <aside class="shipping">
+                  <h2 id="summm">Order summary</h2>
+                  <div class="sumarry">
+                     <div class="shipping-item"></div>
+                  </div>  
+                  <div class="Asapa">
+                    <a href="./payment.html" id="aaaa">Back to payment</a>
+                    <a href="./placeorder.html" id="placeOrderBtn">Place Order</a>
+                  </div>
+                </aside>   
+
+
+            </div>
+            <div class="summary">
+              <h2>Order Summary</h2>
+               <div class="summary1">
+                   <div class="summary2">
+                       <h3>Subtotal</h3>
+                      <p id="SubTotal">0</p>
+                   </div>
+                   <div class="summary3">
+                         <h3>Total</h3>
+                      <p><span id="ProductTotal">0</span></p>
+                   </div>
+               </div>
+            </div>
+          </div>
+        </div>
+    </main>
+    <footer>
+        <div class="section4"> 
+            <h3>LOGO</h3>
+            <div class="foot">
+              <div class="flex1">
+                 <p>Premium tech products with flexible payment options and <br>
+                  exceptional service.</p>
+                   <div class="iconic">
+                      <img src="./instagram.png" alt="">
+                      <img src="./Titok.png" alt="">
+                   </div>
+              </div>
+             <div class="flex2">
+                 <ul id="ul">
+                    <li>Laptops</li>
+                    <li>Phones</li>
+                    <li>Tablets</li>
+                    <li>Accessories</li>
+                 </ul>
+              </div>
+          </div>
+        </div>
+        <div class="end">
+            <p>&copy;2026 All rights reserved</p>
+        </div>
+    </footer>
+</body>    
+<script>
+   const saveItem= JSON.parse(sessionStorage.getItem("shippingForm") || "{}");
+   if(saveItem){
+      document.getElementById("userFirstName").textContent= saveItem["first-name"] || "";
+      document.getElementById("userSecondName").textContent=saveItem["last-name"] || "";
+      document.getElementById("userPhoneNumber").textContent=saveItem["tel"] || "";
+      document.getElementById("email").textContent=saveItem["email"] ||"";
+      document.getElementById("emailAddress").textContent=saveItem["address"] || "";
+      document.getElementById("userPostalCode").textContent=saveItem["postal-code"] ||"";
+    };
+       
+    const reviewCart= JSON.parse(localStorage.getItem("carts") || "[]");
+    const total=reviewCart.reduce((sum,item)=>{
+        return sum + Number(item.priceNumber)*Number(item.quantity);
+
+    }, 0);
+
+    const formattedTotal=total.toLocaleString();
+    document.getElementById("SubTotal").textContent=formattedTotal;
+    document.getElementById("ProductTotal").textContent=formattedTotal;
+   document.querySelector(".summary").classList.add("is-visible"); 
+                                                                    
+   
+    
+
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script src="./script.js"></script>

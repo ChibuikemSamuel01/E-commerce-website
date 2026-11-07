@@ -1,0 +1,194 @@
+<div>
+               <button> - </button>
+               <button> + </button>
+           </div>
+           <div>
+               <button> x </button>
+           </div>
+
+
+
+
+
+.general{
+    display: grid;
+    place-items: center;
+    height: 70%;
+    text-align: center;           
+
+
+
+
+    const cartDisplay=document.querySelector(".CartItem");
+const displayProduct=JSON.parse(localStorage.getItem("carts"));
+if(displayProduct){
+    displayProduct.forEach((product,index)=>{
+        if(cartDisplay){
+            cartDisplay.innerHTML +=`
+            <div>
+               <img src=${product.image}>
+               <div>
+                  <h1>${product. titleName}</h1>
+                 <h2>${product. priceNumber}</h2>
+                </div>  
+            </div>`;
+        };
+    });
+};
+
+
+
+
+<div class="general">
+    <div class="gene">
+        <i class="fa fa-cart-plus" aria-hidden="true"></i>
+        <div class="cart-item">
+            <h3>Your cart is empty</h3>
+            <div>
+               <a href="">Continue Shopping</a>
+            /div>   
+        </div>
+    </div>   
+
+</div>           
+
+<button class="remove" data-index="${index}"> x </button>
+
+cartBtn.addEventListener("click",()=>{
+    //window.location.href ="cart.html";
+
+    cart.classList.add("open");
+
+});
+closeCart.addEventListener("click",()=>{
+    //window.location.href ="index.html" 
+    cart.classList.remove("open");
+
+});
+wishListBtn.addEventListener("click",()=>{
+    //window.location.href="wishlist.html"
+    wishListContainer.classList.add("open");
+
+});
+wishListCloseBtn.addEventListener("click",()=>{
+    //window.location.href="index.html"
+    wishListContainer.classList.remove("open");
+
+});
+
+
+
+
+
+
+
+
+cartDisplay.addEventListener("click",(e)=>{
+    console.log("1. clicked",e.target);
+
+
+    const index=e.target.dataset.index
+    console.log("2. index is",index)
+    if(!carts[index]) return;
+    if(index===undefined) return;
+    console.log("3. item is",cart[index])
+    if(e.target.classList.contains("plus")){
+        carts[index].quantity++;
+    };
+    if(e.target.classList.contains("minus")){
+        carts[index].quantity--;
+    }
+    if(e.target.classList.contains("remove")){
+        carts.splice(index,1);
+    }
+    localStorage.setItem("carts",JSON.stringify(carts));
+    updateCartUI;
+
+
+})
+
+
+
+
+ <div>
+                <p id="SubTotal">0</p>
+            </div>
+            <div>
+              <p>Total:#<span id="ProductTotal">0</span></p>
+            </div>
+            <div>
+               <button>Proceed To Checkout</button>
+        </div>
+
+
+function sumarry(){
+    if(!cartDisplay) return;
+    if(carts.length===0){
+        document.querySelector(".summary").innerHTML="<p>Your Cart is empty</p>";
+        return;
+    }
+    if(cartDisplay){
+        document.querySelector(".summary").innerHTML +=`
+        <div>
+            <div>
+                <p id="SubTotal">0</p>
+            </div>
+            <div>
+              <p>Total:#<span id="ProductTotal">0</span></p>
+            </div>
+            <div>
+               <button>Proceed To Checkout</button>
+            </div>
+
+        </div>`
+    };
+};    
+.wishlist-toggle{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border: 0;
+    background: transparent;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+.wishlist-toggle .fa-heart{
+    position: static;
+    color: inherit;
+}
+
+
+if(wishListItem){
+    wishListItem.addEventListener("click",(event)=>{
+      const div=event.target.closest("h3");
+      //console.log(button);
+      if(!div) return;
+
+
+      const index= Number(div.dataset.index);
+
+      if(div.classList.contains("iconss i")){
+         wishlistCart.splice(index , 1); 
+        
+        };
+
+        wishcount.textContent=wishlistCart.length;
+        localStorage.setItem("wishlistCart",JSON.stringify(wishlistCart));
+       updatewishListItem();  
+
+        
+
+    });
+
+};
+ <h2>Order Summary</h2>
+                <div class="shipping-items"></div>
+                <div class="shipping-total-row">
+                    <span>Subtotal</span>
+                    <span id="shipping-subtotal">#0</span>
+                </div>
+                <div class="shipping-total-row shipping-grand-total">
+                    <span>Total</span>
+                    <span id="shipping-total">#0</span>
+                </div>
