@@ -126,7 +126,11 @@ function goToPostAuthPath() {
 function saveCart() {
   if (currentUser) localStorage.removeItem("carts");
   else localStorage.setItem("carts", JSON.stringify(carts));
-  if (cartCount) cartCount.textContent = String(carts.length);
+  if (cartCount) {
+    cartCount.textContent = String(
+      carts.reduce((total, item) => total + (Number(item.quantity) || 1), 0),
+    );
+  }
 }
 
 function saveWishlist() {
@@ -168,15 +172,19 @@ async function loadProducts() {
   if (!db || grids.length === 0) return;
 
   const path = window.location.pathname.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  const searchTerm = params.get("search")?.trim().toLowerCase() || "";
   const categoryByPage = {
     "laptop.html": "Laptops",
     "phone.html": "Phones",
     "tablets.html": "Tablets",
     "accessories.html": "Accessories",
   };
-  const category = Object.entries(categoryByPage).find(([page]) =>
+  const pageCategory = Object.entries(categoryByPage).find(([page]) =>
     path.endsWith(page),
   )?.[1];
+  const category = searchTerm ? null : params.get("category") || pageCategory;
+  const showAll = Boolean(searchTerm || params.has("category") || params.get("all") === "1");
 
   let query = db
     .from("products")
@@ -190,21 +198,58 @@ async function loadProducts() {
     reportError("Could not load products", error);
     return;
   }
-  if (data.length === 0) {
+  const matchingProducts = searchTerm
+    ? data.filter((product) =>
+      `${product.name} ${product.category}`.toLowerCase().includes(searchTerm),
+    )
+    : data;
+  const heading = document.querySelector(".minor > h1");
+  if (heading) {
+    heading.textContent = searchTerm
+      ? `Search results for “${params.get("search")?.trim() || ""}”`
+      : category
+        ? `${category} products`
+        : params.get("all") === "1"
+          ? "All Products"
+          : "Featured products";
+  }
+  if (matchingProducts.length === 0) {
     grids.forEach((grid) => {
       grid.replaceChildren();
       const empty = document.createElement("p");
-      empty.textContent = "No products are available in this category yet.";
+      empty.textContent = searchTerm
+        ? "No products match your search."
+        : "No products are available in this category yet.";
       grid.append(empty);
     });
     return;
   }
   grids.forEach((grid) => {
-    const products = grid.classList.contains("main1-grid") ? data.slice(0, 4) : data;
+    const products = grid.classList.contains("main1-grid") && !showAll
+      ? matchingProducts.slice(0, 4)
+      : matchingProducts;
     grid.innerHTML = products.map(renderProductCard).join("");
   });
   markWishlistProducts();
 }
+
+document.addEventListener("click", (event) => {
+  const browseButton = event.target.closest(".btn button, .mubtu button");
+  if (browseButton) {
+    if (browseButton.id === "shopNow") {
+      window.location.assign("./index.html#categories");
+      return;
+    }
+    window.location.assign("./index.html?all=1#featured");
+    return;
+  }
+
+  const trackOrderLink = event.target.closest("#trackorder");
+  if (trackOrderLink) {
+    event.preventDefault();
+    showMessage("Order tracking is not available yet.");
+  }
+});
 
 function updateCartUI() {
   saveCart();
@@ -348,6 +393,7 @@ async function loadAccountData() {
     const localOnlyItems = carts.filter((item) => !isDatabaseId(item.id));
     carts = [...savedItems, ...localOnlyItems];
     updateCartUI();
+    updateShippingSummary();
   }
 
   if (!wishlistResult.error) {
@@ -403,6 +449,37 @@ function renderAccount(session) {
   header.append(wrapper);
 }
 
+function prefillShippingForm(user) {
+  const form = document.getElementById("shippingForm");
+  if (!form || !user) return;
+
+  let savedDetails = {};
+  try {
+    savedDetails = JSON.parse(sessionStorage.getItem("shippingForm") || "{}");
+  } catch {
+    savedDetails = {};
+  }
+
+  const metadata = user.user_metadata || {};
+  const fullName = String(metadata.full_name || metadata.name || "").trim();
+  const [firstName = "", ...lastNameParts] = fullName.split(/\s+/);
+  const values = {
+    "first-name": savedDetails["first-name"] || metadata.first_name || firstName,
+    "last-name": savedDetails["last-name"] || metadata.last_name || lastNameParts.join(" "),
+    email: savedDetails.email || user.email || "",
+    tel: savedDetails.tel || metadata.phone || "",
+    address: savedDetails.address || "",
+    city: savedDetails.city || "",
+    state: savedDetails.state || "",
+    "postal-code": savedDetails["postal-code"] || "",
+  };
+
+  Object.entries(values).forEach(([name, value]) => {
+    const field = form.elements.namedItem(name);
+    if (field && !field.value.trim() && value) field.value = value;
+  });
+}
+
 async function handleSession(session) {
   const previousUserId = currentUser?.id;
   const nextUserId = session?.user?.id;
@@ -411,6 +488,7 @@ async function handleSession(session) {
     wishlistCart = [];
   }
   currentUser = session?.user || null;
+  prefillShippingForm(currentUser);
   document.querySelector(".account-status")?.remove();
   renderAccount(session);
   const checkoutPath = /\/(shopping|payment|review)\.html$/i.test(window.location.pathname);
@@ -739,6 +817,7 @@ async function setupAuthentication() {
 document.addEventListener("click", async (event) => {
   const addButton = event.target.closest(".Add-to-cart");
   if (addButton) {
+    addButton.textContent="Added"
     const card = addButton.closest(".product-card");
     if (!card) return;
     const price = card.querySelector("h2")?.textContent || "";
@@ -882,6 +961,30 @@ document.addEventListener("submit", (event) => {
 });
 
 const placeOrderButton = document.getElementById("placeOrderBtn");
+const reviewPaymentMethod = document.getElementById("reviewPaymentMethod");
+if (sessionStorage.getItem("paymentMethod") === "paystack" && reviewPaymentMethod) {
+  reviewPaymentMethod.textContent = "Paystack test checkout";
+}
+
+async function verifyPaystackPayment(reference) {
+  if (!db || !currentUser || !reference) return;
+  const { data, error } = await db.functions.invoke("paystack-payments", {
+    body: { action: "verify", reference },
+  });
+  if (error) return showMessage(`Could not verify Paystack payment: ${error.message}`, true);
+  if (!data?.order_id) return showMessage("Paystack did not confirm the order. Please contact support.", true);
+
+  sessionStorage.setItem("lastOrderId", data.order_id);
+  sessionStorage.setItem("lastOrderPaymentMethod", "paystack");
+  sessionStorage.removeItem("paymentMethod");
+  sessionStorage.removeItem("paystackReference");
+  carts = [];
+  saveCart();
+  updateCartUI();
+  updateShippingSummary();
+  window.location.replace("./placeorder.html");
+}
+
 if (placeOrderButton) {
   placeOrderButton.addEventListener("click", async (event) => {
     event.preventDefault();
@@ -897,6 +1000,51 @@ if (placeOrderButton) {
       return showMessage("Some cart items are from the offline catalog. Remove them and add current Supabase products before ordering.", true);
     }
     const shippingAddress = JSON.parse(sessionStorage.getItem("shippingForm") || "{}");
+    if (sessionStorage.getItem("paymentMethod") === "paystack") {
+      const publicKey = window.PAYSTACK_PUBLIC_KEY || "";
+      if (!publicKey.startsWith("pk_test_") || publicKey.includes("REPLACE")) {
+        return showMessage("Add your Paystack test public key to supabase-config.js.", true);
+      }
+      if (!window.PaystackPop) {
+        return showMessage("Paystack could not load. Open the store from http://localhost and try again.", true);
+      }
+      const { data, error } = await db.functions.invoke("paystack-payments", {
+        body: { action: "prepare", shippingAddress },
+      });
+      if (error) {
+        const message = error.name === "FunctionsFetchError"
+          ? "Supabase could not reach paystack-payments. Deploy the Edge Function first."
+          : error.message;
+        return showMessage(`Could not start Paystack checkout: ${message}`, true);
+      }
+      if (!data?.reference || !Number.isSafeInteger(data.amount_kobo) || !data.email) {
+        return showMessage("The payment server returned incomplete checkout details.", true);
+      }
+      sessionStorage.setItem("paystackReference", data.reference);
+      try {
+        const popup = new window.PaystackPop();
+        popup.newTransaction({
+          key: publicKey,
+          email: data.email,
+          amount: data.amount_kobo,
+          currency: "NGN",
+          reference: data.reference,
+          onSuccess: (transaction) => {
+            void verifyPaystackPayment(transaction.reference || data.reference);
+          },
+          onCancel: () => {
+            void db.functions.invoke("paystack-payments", {
+              body: { action: "cancel", reference: data.reference },
+            });
+            showMessage("Payment was cancelled. No order was placed.");
+          },
+          onError: (popupError) => showMessage(`Paystack checkout failed: ${popupError.message}`, true),
+        });
+      } catch (popupError) {
+        showMessage(`Could not open Paystack: ${popupError.message}`, true);
+      }
+      return;
+    }
     const { data, error } = await db.rpc("place_order", {
       p_shipping_address: {
         ...shippingAddress,
@@ -905,21 +1053,84 @@ if (placeOrderButton) {
     });
     if (error) return reportError("Could not place your order", error);
     sessionStorage.setItem("lastOrderId", data);
+    sessionStorage.setItem("lastOrderPaymentMethod", "cash_on_delivery");
     carts = [];
     saveCart();
     updateCartUI();
+    updateShippingSummary();
     window.location.href = "placeorder.html";
   });
 }
+
+const shippingDetails = JSON.parse(sessionStorage.getItem("shippingForm") || "{}");
+const reviewShippingFields = {
+  userFirstName: `First name: ${shippingDetails["first-name"] || ""}`,
+  userSecondName: `Last name: ${shippingDetails["last-name"] || ""}`,
+  userPhoneNumber: `Phone: ${shippingDetails.tel || ""}`,
+  userPostalCode: [shippingDetails.city, shippingDetails.state, shippingDetails["postal-code"]]
+    .filter(Boolean)
+    .join(", "),
+  email: `Email: ${shippingDetails.email || ""}`,
+  emailAddress: `Address: ${shippingDetails.address || ""}`,
+};
+Object.entries(reviewShippingFields).forEach(([id, value]) => {
+  const field = document.getElementById(id);
+  if (field && value.trim()) field.textContent = value;
+});
 
 const storedOrderId = sessionStorage.getItem("lastOrderId");
 const orderConfirmation = document.getElementById("orderConfirmation");
 if (orderConfirmation && storedOrderId) {
   orderConfirmation.textContent = `Your order reference is ${storedOrderId}.`;
 }
-
+const orderStatusMessage = document.getElementById("orderStatusMessage");
+if (orderStatusMessage && storedOrderId) {
+  orderStatusMessage.textContent = sessionStorage.getItem("lastOrderPaymentMethod") === "paystack"
+    ? "Your Paystack test payment is confirmed. Your order is awaiting fulfillment."
+    : "Your order has been placed successfully. It is awaiting payment/fulfillment.";
+}
 updateCartUI();
 updateWishlistUI();
 updateShippingSummary();
 void loadProducts().catch((error) => reportError("Could not load products", error));
 void setupAuthentication().catch((error) => reportError("Could not initialize accounts", error));
+
+function searchCatalog() {
+  const search = document.getElementById("search");
+  const term = search?.value.trim();
+  if (!term) {
+    showMessage("Enter a product or category to search.");
+    search?.focus();
+    return;
+  }
+  window.location.assign(`./index.html?search=${encodeURIComponent(term)}#featured`);
+}
+
+document.querySelector(".minhead button")?.addEventListener("click", searchCatalog);
+document.getElementById("search")?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") searchCatalog();
+});
+
+console.log(JSON.parse(sessionStorage.getItem("shippingForm") || "{}"))
+
+const det = JSON.parse(sessionStorage.getItem("shippingForm") || "{}")
+const mail = det.email
+
+function payWithPaystack(){
+  let handler = PaystackPop.setup({
+     key: 'pk_test_f7dbd5715f68719d2aae496fdf796118b00e9061',
+     email: mail,
+     amount: 500*100,
+     currency: 'NGN',
+
+     callback:function(response) {
+        alert('payment successful ! Refrerence : ' + response.reference);
+     },
+
+     onclose : function(){
+      alert('Window closed. payment cancelled')
+     }
+  });
+
+  handler.openIframe();
+};

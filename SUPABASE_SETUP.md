@@ -26,6 +26,7 @@ product listings, per-account carts and wishlists, and order storage.
    must confirm their email before signing in; the store can resend confirmation
    and password reset emails.
 
+
 ## Email confirmation
 
 To allow new accounts to sign in immediately after registration, open
@@ -40,8 +41,26 @@ status updated in **Authentication → Users**.
 - Use HTTPS for the deployed storefront.
 - The browser config must contain only the project's public anon/publishable
   key; never put a service-role key in the site.
-- Checkout currently records cash-on-delivery orders only. Online card payments
-  are not enabled.
+- Checkout supports cash on delivery and Paystack test-mode popup checkout.
+
+## Paystack test checkout
+
+The browser uses the Paystack `pk_test_` public key in `supabase-config.js`.
+Only a matching `sk_test_` secret is accepted by the payment Edge Function;
+never put that secret in browser code.
+
+1. Run the updated [`supabase/schema.sql`](./supabase/schema.sql) in the
+  Supabase SQL Editor.
+2. In **Edge Functions → Secrets**, set `PAYSTACK_SECRET_KEY` to your Paystack
+  test secret key and `PAYSTACK_WEBHOOK_SECRET` to the webhook signing secret.
+3. Link the project and deploy the function with the Supabase CLI:
+  `supabase link --project-ref jzpsqvcrcyjareuhksas`
+  `supabase functions deploy paystack-payments`
+4. In Paystack, configure the webhook URL as
+  `https://jzpsqvcrcyjareuhksas.supabase.co/functions/v1/paystack-payments`
+  and subscribe it to `charge.success`.
+5. Run the storefront from `http://localhost` or HTTPS, then test with
+  Paystack's test payment details. The Edge Function rejects live secret keys.
 
 ## What is stored
 
@@ -54,8 +73,7 @@ status updated in **Authentication → Users**.
   shipping details and line-item snapshots, decreases stock, and empties the
   user's cart in one database transaction.
 
-Checkout currently records orders as **unpaid/pending** with cash on delivery.
-The existing browser-only card form and exposed payment-key flow are not a
-secure payment integration, so this version does not collect or store card
-numbers. Add a server-side payment provider integration and verified webhook
-before enabling online payments.
+Cash-on-delivery orders remain **unpaid/pending** until received. Paystack test
+orders are marked paid only after server-side amount and currency verification.
+Card details are entered in Paystack's popup and are not collected or stored by
+this storefront.

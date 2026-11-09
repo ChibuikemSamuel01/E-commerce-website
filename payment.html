@@ -16,7 +16,7 @@
 <body>
     <header>
         <div class="head">
-            <div class="logo">LOGO</div>
+            <a class="logo" href="./index.html" aria-label="Store home">LOGO</a>
             <div class="minhead">
                 <input type="search" id="search" placeholder="Search for products,brands...">
                 <label for="search"></label>
@@ -46,7 +46,7 @@
            <li> <a href="./index.html">Home</a></li>  
           <li> <a href="./laptop.html">Laptops</a></li>
           <li> <a href="./tablets.html">Tablets</a></li>
-          <li> <a href="">Monitors</a></li>
+          <li> <a href="./index.html?category=Monitors#featured">Monitors</a></li>
           <li> <a href="./phone.html">Phones</a></li>
           <li> <a href="./accessories.html">Accessories</a></li>
         </ul>
@@ -81,11 +81,12 @@
                 <div class="pad">
                     <form action="./review.html" method="post" id="paymentForm">
                         <div class="payment-fields">
-                            <p>Online card payments are not enabled yet. No card details are collected or stored.</p>
+                            <p>Choose Paystack to test the secure payment popup, or pay on delivery.</p>
                             <div class="payment-field">
                                 <label for="payment-method">Payment method</label>
                                 <select id="payment-method" name="payment-method" required>
                                     <option value="cash_on_delivery">Cash on delivery (unpaid until received)</option>
+                                    <option value="paystack">Pay online with Paystack (test mode)</option>
                                 </select>
                             </div>
                         </div>
@@ -121,16 +122,16 @@
                  <p>Premium tech products with flexible payment options and <br>
                   exceptional service.</p>
                    <div class="iconic">
-                      <img src="./instagram.png" alt="">
-                      <img src="./Titok.png" alt="">
+                      <i class="fa-brands fa-instagram" role="img" aria-label="Instagram"></i>
+                      <i class="fa-brands fa-tiktok" role="img" aria-label="TikTok"></i>
                    </div>
               </div>
              <div class="flex2">
                  <ul id="ul">
-                    <li>Laptops</li>
-                    <li>Phones</li>
-                    <li>Tablets</li>
-                    <li>Accessories</li>
+                    <li><a href="./laptop.html">Laptops</a></li>
+                    <li><a href="./phone.html">Phones</a></li>
+                    <li><a href="./tablets.html">Tablets</a></li>
+                    <li><a href="./accessories.html">Accessories</a></li>
                  </ul>
               </div>
           </div>

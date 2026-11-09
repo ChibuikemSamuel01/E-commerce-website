@@ -51,6 +51,32 @@ create table if not exists public.orders (
   created_at timestamptz not null default now()
 );
 
+alter table public.orders
+  add column if not exists payment_reference text;
+alter table public.orders
+  drop constraint if exists orders_payment_method_check;
+alter table public.orders
+  add constraint orders_payment_method_check
+  check (payment_method in ('cash_on_delivery', 'paystack'));
+
+create unique index if not exists orders_payment_reference_idx
+  on public.orders (payment_reference)
+  where payment_reference is not null;
+
+create table if not exists public.paystack_payment_attempts (
+  reference text primary key,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  amount_kobo bigint not null check (amount_kobo > 0),
+  currency text not null default 'NGN' check (currency = 'NGN'),
+  shipping_address jsonb not null,
+  items jsonb not null check (jsonb_typeof(items) = 'array'),
+  status text not null default 'pending'
+    check (status in ('pending', 'paid', 'failed', 'refunded')),
+  order_id uuid references public.orders (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
   order_id uuid not null references public.orders (id) on delete cascade,
@@ -73,12 +99,15 @@ alter table public.cart_items enable row level security;
 alter table public.wishlist_items enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.paystack_payment_attempts enable row level security;
+revoke all on table public.paystack_payment_attempts from public, anon, authenticated;
 
 grant select on public.products to anon, authenticated;
 grant select, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.cart_items to authenticated;
 grant select, insert, delete on public.wishlist_items to authenticated;
 grant select on public.orders, public.order_items to authenticated;
+grant select, insert, update on public.paystack_payment_attempts to service_role;
 
 drop policy if exists "Profiles are readable by their owner" on public.profiles;
 create policy "Profiles are readable by their owner"
@@ -169,6 +198,9 @@ begin
      or coalesce(trim(p_shipping_address ->> 'first-name'), '') = ''
      or coalesce(trim(p_shipping_address ->> 'last-name'), '') = ''
      or coalesce(trim(p_shipping_address ->> 'address'), '') = ''
+    or coalesce(trim(p_shipping_address ->> 'city'), '') = ''
+    or coalesce(trim(p_shipping_address ->> 'state'), '') = ''
+    or coalesce(trim(p_shipping_address ->> 'postal-code'), '') = ''
      or coalesce(trim(p_shipping_address ->> 'email'), '') = ''
      or coalesce(trim(p_shipping_address ->> 'tel'), '') = '' then
     raise exception 'Complete the shipping details before placing your order';
@@ -224,6 +256,130 @@ $$;
 
 revoke all on function public.place_order(jsonb) from public;
 grant execute on function public.place_order(jsonb) to authenticated;
+
+create or replace function public.complete_paystack_order(
+  p_user_id uuid,
+  p_reference text
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_attempt public.paystack_payment_attempts%rowtype;
+  v_order_id uuid;
+  v_subtotal numeric(12, 2) := 0;
+  v_item jsonb;
+  v_product_id uuid;
+  v_product_name text;
+  v_quantity integer;
+  v_unit_price numeric(12, 2);
+  v_stock integer;
+  v_active boolean;
+  v_item_count integer := 0;
+begin
+  if coalesce(auth.role(), '') <> 'service_role' then
+    raise exception 'Only the payment server can complete Paystack orders';
+  end if;
+
+  select * into v_attempt
+  from public.paystack_payment_attempts
+  where reference = p_reference and user_id = p_user_id
+  for update;
+
+  if not found then
+    raise exception 'Payment attempt not found';
+  end if;
+  if v_attempt.status = 'paid' and v_attempt.order_id is not null then
+    return v_attempt.order_id;
+  end if;
+  if v_attempt.status <> 'pending' then
+    raise exception 'Payment attempt is not pending';
+  end if;
+
+  for v_item in
+    select item.value
+    from jsonb_array_elements(v_attempt.items) as item(value)
+    order by item.value ->> 'product_id'
+  loop
+    v_product_id := (v_item ->> 'product_id')::uuid;
+    v_product_name := coalesce(v_item ->> 'product_name', 'Product');
+    v_quantity := (v_item ->> 'quantity')::integer;
+    v_unit_price := (v_item ->> 'unit_price')::numeric(12, 2);
+
+    if v_quantity is null or v_quantity not between 1 and 99
+       or v_unit_price is null or v_unit_price < 0 then
+      raise exception 'Invalid item in payment attempt';
+    end if;
+
+    select stock, active into v_stock, v_active
+    from public.products
+    where id = v_product_id
+    for update;
+    if not found or not v_active then
+      raise exception 'Product % is no longer available', v_product_name;
+    end if;
+    if v_quantity > v_stock then
+      raise exception 'Not enough stock for %', v_product_name;
+    end if;
+
+    v_item_count := v_item_count + 1;
+    v_subtotal := v_subtotal + (v_unit_price * v_quantity);
+  end loop;
+
+  if v_item_count = 0 or round(v_subtotal * 100)::bigint <> v_attempt.amount_kobo then
+    raise exception 'Payment amount does not match the order';
+  end if;
+
+  insert into public.orders (
+    user_id, payment_method, payment_status, subtotal,
+    shipping_address, payment_reference
+  )
+  values (
+    p_user_id, 'paystack', 'paid', v_subtotal,
+    v_attempt.shipping_address, v_attempt.reference
+  )
+  returning id into v_order_id;
+
+  for v_item in
+    select item.value
+    from jsonb_array_elements(v_attempt.items) as item(value)
+    order by item.value ->> 'product_id'
+  loop
+    v_product_id := (v_item ->> 'product_id')::uuid;
+    v_product_name := coalesce(v_item ->> 'product_name', 'Product');
+    v_quantity := (v_item ->> 'quantity')::integer;
+    v_unit_price := (v_item ->> 'unit_price')::numeric(12, 2);
+
+    insert into public.order_items (
+      order_id, product_id, product_name, unit_price, quantity
+    )
+    values (
+      v_order_id, v_product_id, v_product_name, v_unit_price, v_quantity
+    );
+
+    update public.products
+      set stock = stock - v_quantity, updated_at = now()
+      where id = v_product_id;
+
+    delete from public.cart_items
+      where user_id = p_user_id
+        and product_id = v_product_id
+        and quantity = v_quantity;
+  end loop;
+
+  update public.paystack_payment_attempts
+    set status = 'paid', order_id = v_order_id, updated_at = now()
+    where reference = v_attempt.reference;
+
+  return v_order_id;
+end;
+$$;
+
+revoke all on function public.complete_paystack_order(uuid, text) from public;
+revoke all on function public.complete_paystack_order(uuid, text) from anon, authenticated;
+grant execute on function public.complete_paystack_order(uuid, text) to service_role;
 
 insert into public.products (slug, name, description, category, price, image_url, stock)
 values

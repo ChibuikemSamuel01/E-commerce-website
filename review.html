@@ -16,7 +16,7 @@
 <body>
     <header>
         <div class="head">
-            <div class="logo">LOGO</div>
+            <a class="logo" href="./index.html" aria-label="Store home">LOGO</a>
             <div class="minhead">
                 <input type="search" id="search" placeholder="Search for products,brands...">
                 <label for="search"></label>
@@ -46,7 +46,7 @@
            <li> <a href="./index.html">Home</a></li>  
           <li> <a href="./laptop.html">Laptops</a></li>
           <li> <a href="./tablets.html">Tablets</a></li>
-          <li> <a href="">Monitors</a></li>
+          <li> <a href="./index.html?category=Monitors#featured">Monitors</a></li>
           <li> <a href="./phone.html">Phones</a></li>
           <li> <a href="./accessories.html">Accessories</a></li>
         </ul>
@@ -97,7 +97,7 @@
                         <h3>Payment Method</h3>
                        <div class="dives">
                           <div class="nana">
-                          <h4>Cash on delivery</h4>
+                          <h4 id="reviewPaymentMethod">Cash on delivery</h4>
                           </div>
                        </div>
                     </div>
@@ -140,16 +140,16 @@
                  <p>Premium tech products with flexible payment options and <br>
                   exceptional service.</p>
                    <div class="iconic">
-                      <img src="./instagram.png" alt="">
-                      <img src="./Titok.png" alt="">
+                      <i class="fa-brands fa-instagram" role="img" aria-label="Instagram"></i>
+                      <i class="fa-brands fa-tiktok" role="img" aria-label="TikTok"></i>
                    </div>
               </div>
              <div class="flex2">
                  <ul id="ul">
-                    <li>Laptops</li>
-                    <li>Phones</li>
-                    <li>Tablets</li>
-                    <li>Accessories</li>
+                    <li><a href="./laptop.html">Laptops</a></li>
+                    <li><a href="./phone.html">Phones</a></li>
+                    <li><a href="./tablets.html">Tablets</a></li>
+                    <li><a href="./accessories.html">Accessories</a></li>
                  </ul>
               </div>
           </div>
@@ -186,6 +186,8 @@
 
 
 </script>
+<script src="https://paystack.co"></script>
+<script src="https://js.paystack.co/v2/inline.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
 <script src="./script.js"></script>
